@@ -140,7 +140,7 @@ if (which === 'all' || which === 'faces') {
   const gps = [['stand', { pose: 'stand' }], ['call', { pose: 'call' }], ['eat', { pose: 'eat' }], ['popcorn 0.45', { pose: 'popcorn', k: 0.45 }], ['walk', { pose: 'walk', phase: 0.4 }]];
   gps.forEach(([name, o], i) => {
     const cx = 200 + i * 380, cy = 905;
-    cell(cx, cy, 360, 300, () => drawGuineaPig(c, { x: cx - 30, y: cy + 140, s: 16, t: T + i * 0.3, seed: i, ...o }), name);
+    cell(cx, cy, 360, 300, () => drawGuineaPig(c, { x: cx - 40, y: cy + 135, s: 12, t: T + i * 0.3, seed: i, ...o }), name);
   });
   console.log(save(cv, 'build/sheets/model_small_faces.jpg', 90));
 }
