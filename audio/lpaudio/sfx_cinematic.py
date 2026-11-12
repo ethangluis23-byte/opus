@@ -149,7 +149,7 @@ def shimmer(params, sr=SR):
         pad = np.zeros(n, dtype=np.float32)
         for f in (174.61, 220.0, 261.63, 349.23):
             pad += tone(np.full(n, f * (1.0 + rng.uniform(-0.002, 0.002))), 1.0, sr, rng.uniform(0, TAU))
-        dry[:, ch] += 0.05 * pad * env * (0.9 + 0.1 * np.sin(TAU * 0.35 * tt + ch))
+        dry[:, ch] += 0.02 * pad * env * (0.9 + 0.1 * np.sin(TAU * 0.35 * tt + ch))
     y = dsp.reverb(dry, "hall", wet=0.5, dry=0.8)
     return fade(lp(y, 9000.0, 2, sr), 0.0, 0.5, sr)
 

@@ -49,6 +49,11 @@ ONESHOT_CASES = [
     ("glass_break", {}), ("metal_creak", {}), ("rumble_collapse", {}), ("leaves_rustle", {"dur": 2.5}),
     ("grass_rustle", {"dur": 2.5}), ("water_drip", {"count": 3}), ("thunder", {}), ("thunder@close", {"dist": 0.1}),
     ("paper_flutter", {}),
+    # dry single events at high time resolution, to inspect the source-filter structure
+    ("dog_bark@zoom_med", {"count": 1, "dist": 0.0}), ("dog_bark@zoom_large", {"count": 1, "dist": 0.0, "size": "large"}),
+    ("dog_bark@zoom_small", {"count": 1, "dist": 0.0, "size": "small"}), ("puppy_yip@zoom", {"count": 1, "dist": 0.0}),
+    ("parrot_squawk@zoom", {"count": 1, "dist": 0.0}), ("cat_meow@zoom", {"mood": "curious", "dist": 0.0}),
+    ("dog_growl@zoom", {"dur": 0.6, "dist": 0.0}), ("cat_hiss@zoom", {"dist": 0.0}),
 ]
 BED_CASES = [(k, {}) for k in registry.BEDS] + [("room_tone@clock", {"clock": True}), ("rain@heavy", {"intensity": 1.0}),
                                                 ("birds_day@dense", {"density": 1.0})]
@@ -56,12 +61,27 @@ BED_CASES = [(k, {}) for k in registry.BEDS] + [("room_tone@clock", {"clock": Tr
 
 def logspec(x, fmin=40.0, fmax=16000.0, nbins=220):
     m = x.mean(axis=1) if x.ndim == 2 else x
-    nper = 2048 if len(m) > SR * 8 else 1024
+    d = len(m) / SR
+    nper = 2048 if d > 8 else (1024 if d > 2.5 else (512 if d > 0.5 else 256))
+    if len(m) < nper * 2:
+        m = np.concatenate([m, np.zeros(nper * 2 - len(m), dtype=m.dtype)])
     f, t, S = signal.spectrogram(m, fs=SR, nperseg=nper, noverlap=nper * 3 // 4, window="hann", mode="magnitude")
     S = 20 * np.log10(S + 1e-9)
     fl = np.geomspace(fmin, fmax, nbins)
     idx = np.clip(np.searchsorted(f, fl), 1, len(f) - 1)
     return t, fl, S[idx]
+
+
+OCT_EDGES = [0, 125, 250, 500, 1000, 2000, 4000, 8000, 24000]
+
+
+def octave_bands(x):
+    """Share of energy per band, dB relative to the total."""
+    m = x.mean(axis=1) if x.ndim == 2 else x
+    P = np.abs(np.fft.rfft(m.astype(np.float64))) ** 2
+    f = np.fft.rfftfreq(len(m), 1.0 / SR)
+    tot = P.sum() + 1e-30
+    return [int(round(10 * np.log10(P[(f >= a) & (f < b)].sum() / tot + 1e-12))) for a, b in zip(OCT_EDGES[:-1], OCT_EDGES[1:])]
 
 
 def sheet(items, path, cols=4):
@@ -73,7 +93,7 @@ def sheet(items, path, cols=4):
         ax.axis("on")
         t, fl, S = logspec(x)
         top = S.max()
-        ax.imshow(S, origin="lower", aspect="auto", extent=[0, len(x) / SR, 0, len(fl)], vmin=top - 75, vmax=top, cmap="magma")
+        ax.imshow(S, origin="lower", aspect="auto", extent=[0, len(x) / SR, 0, len(fl)], vmin=top - 60, vmax=top, cmap="magma")
         ticks = [50, 100, 200, 500, 1000, 2000, 5000, 10000]
         ax.set_yticks([np.interp(np.log(v), np.log(fl), np.arange(len(fl))) for v in ticks])
         ax.set_yticklabels(["50", "100", "200", "500", "1k", "2k", "5k", "10k"], fontsize=6)
@@ -127,7 +147,7 @@ def main():
             st = dict(label=label, kind=kind, ch=1 if x.ndim == 1 else 2, dur=round(len(x) / SR, 2),
                       peak_db=round(db(np.abs(x).max()), 1), lmax_k=round(lk, 1), lmax_z=round(lz, 1),
                       lufs=round(integrated_lufs(xs), 1), dc=float(np.abs(xs.mean(axis=0)).max()),
-                      ms=int(el * 1000), nan=bool(np.isnan(x).any()))
+                      ms=int(el * 1000), nan=bool(np.isnan(x).any()), bands=octave_bands(x))
             if kind == "bed":
                 st["rt_factor"] = round(args.bed_dur / max(el, 1e-6), 1)
             stats.append(st)
@@ -139,13 +159,13 @@ def main():
             print("sheet", p)
     with open(os.path.join(out_qa, "stats.json"), "w") as f:
         json.dump(stats, f, indent=1)
-    print(f"{'label':24} {'ch':>2} {'dur':>6} {'peak':>6} {'LmaxK':>6} {'LmaxZ':>6} {'LUFS':>6} {'dc':>8} {'ms':>6}")
+    print(f"{'label':24} {'ch':>2} {'dur':>6} {'peak':>6} {'LmaxK':>6} {'LmaxZ':>6} {'LUFS':>6} {'dc':>8} {'ms':>6}  bands dB: <125 250 500 1k 2k 4k 8k >8k")
     for s in stats:
         if "error" in s:
             print(f"{s['label']:24} ERROR {s['error']}")
             continue
         extra = f" x{s['rt_factor']}rt" if "rt_factor" in s else ""
-        print(f"{s['label']:24} {s['ch']:>2} {s['dur']:>6} {s['peak_db']:>6} {s['lmax_k']:>6} {s['lmax_z']:>6} {s['lufs']:>6} {s['dc']:>8.1e} {s['ms']:>6}{extra}{' NAN' if s['nan'] else ''}")
+        print(f"{s['label']:24} {s['ch']:>2} {s['dur']:>6} {s['peak_db']:>6} {s['lmax_k']:>6} {s['lmax_z']:>6} {s['lufs']:>6} {s['dc']:>8.1e} {s['ms']:>6}  {' '.join(f'{b:>4}' for b in s['bands'])}{extra}{' NAN' if s['nan'] else ''}")
 
 
 if __name__ == "__main__":

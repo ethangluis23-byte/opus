@@ -73,19 +73,19 @@ _DOG = {
 def _bark(rng, f0p, fs, dur, harsh, sr=SR):
     n = n_of(dur, sr)
     f0 = f0p * bpc(n, [(0, 0.70), (0.22, 1.0), (0.55, 0.93), (1.0, 0.60)])
-    f0 = f0 * (1.0 + (0.02 + 0.05 * harsh) * smooth_noise(n, rng, 180.0))
+    u = np.linspace(0, 1, n)
+    f0 = f0 * (1.0 + (0.02 + 0.05 * harsh) * (1.5 - u) * smooth_noise(n, rng, 180.0))  # roughest at the onset
     mouth = bpc(n, [(0, 0.70), (0.25, 1.0), (0.6, 1.0), (1.0, 0.76)])  # opens, then closes
     F = (600.0 * fs * mouth, 1700.0 * fs * (0.9 + 0.1 * mouth), 2900.0 * fs, 4100.0 * fs)
     B = (170.0 * fs, 280.0 * fs, 420.0 * fs, 560.0 * fs)
     G = (1.0, 0.75, 0.42, 0.22)
-    u = np.linspace(0, 1, n)
     amp = env_ar(n, 0.010, dur * 0.30, sr) * np.exp(-1.1 * u)
     amp = amp * (1.0 + 0.12 * harsh * smooth_noise(n, rng, 90.0))
     v = harmonic_voice(f0, amp, (F, B, G), tilt_db_oct=-7.0, fmax=9000.0, sub=0.22 + 0.35 * harsh, sr=sr)
     nz = formant_noise(n, rng, F, tuple(b * 1.7 for b in B), (0.8, 0.9, 0.7, 0.5), tilt_db_oct=-2.0,
                        lo=300.0 * fs, hi=9000.0, sr=sr)
     pulse = 0.65 + 0.35 * np.sin(TAU * np.cumsum(f0) / sr)
-    y = _mix_vn(v, nz * amp * pulse, 0.42 + 0.5 * harsh)
+    y = _mix_vn(v, nz * amp * pulse * (1.3 - 0.6 * u), 0.42 + 0.5 * harsh)
     k = n_of(0.006, sr)  # plosive-like onset
     y[:k] += 0.8 * white(k, rng) * cos_ramp(k, up=False) * _rms(y) * 2.0
     return fade(y, 0.002, 0.012, sr)
@@ -285,7 +285,8 @@ def _meow(rng, mood, sr=SR):
     amp = bpc(n, ampc) * (1.0 + 0.05 * smooth_noise(n, rng, 20.0))
     if mood != "sad":  # short chirruped onset: "mrr-ow?"
         k = min(n, n_of(0.11, sr))
-        amp[:k] *= 0.3 + 0.7 * np.abs(np.sin(np.pi * 27.0 * tt[:k]))
+        depth = 0.7 * cos_ramp(k, up=False)  # trill melts into the vowel, no step
+        amp[:k] *= 1.0 - depth * (1.0 - np.abs(np.sin(np.pi * 27.0 * tt[:k])))
     v = harmonic_voice(f0, amp, (F, B, (1.0, 0.8, 0.45, 0.25)), tilt_db_oct=-8.0, fmax=9000.0, sub=0.06, sr=sr)
     nz = formant_noise(n, rng, F, tuple(b * 1.5 for b in B), (0.6, 0.9, 0.7, 0.4), lo=400.0, hi=9000.0, sr=sr) * amp
     return fade(_mix_vn(v, nz, 0.13), 0.01, 0.04, sr)
@@ -354,13 +355,13 @@ def pounce(params, sr=SR):
     pre = dsp.band_noise(n_of(0.22, sr), rng, 900.0, 5000.0) * bpc(n_of(0.22, sr), [(0, 0), (0.8, 1.0), (1.0, 0.2)])
     place(y, pre, 0, 0.16)  # the leap: a quick swish
     t0 = n_of(0.22, sr)
-    thud = dsp.modal([82.0, 131.0], [0.05, 0.03], [1.0, 0.5], 0.3, sr)
-    place(thud, dsp.noise_burst(rng, 0.12, 0, 380.0, 0.03, sr=sr), 0, 0.5)
+    thud = dsp.modal([115.0, 190.0], [0.035, 0.02], [1.0, 0.5], 0.2, sr)
+    place(thud, dsp.noise_burst(rng, 0.1, 0, 700.0, 0.025, sr=sr), 0, 0.8)
     place(y, thud, t0, 1.0)
     lo, hi = (1500.0, 8000.0) if surface == "leaves" else ((700.0, 3500.0) if surface == "floor" else (1000.0, 5500.0))
     m = n_of(0.4, sr)
     rust = dsp.band_noise(m, rng, lo, hi) * exp_decay(m, 0.09, sr) * (1.0 + 0.5 * smooth_noise(m, rng, 30.0))
-    place(y, rust.astype(F32), t0, 0.3)
+    place(y, rust.astype(F32), t0, 0.45)
     return fade(y, 0.01, 0.05, sr)
 
 
@@ -544,12 +545,13 @@ def rabbit_thump(params, sr=SR):
     for _ in range(count):
         n = n_of(0.3, sr)
         tt = np.arange(n) / sr
-        f = 58.0 + 60.0 * np.exp(-tt / 0.018)
-        body = tone(f, exp_decay(n, 0.055, sr), sr)
+        f = 82.0 + 70.0 * np.exp(-tt / 0.02)
+        body = tone(f, exp_decay(n, 0.045, sr), sr)
         body[:48] *= cos_ramp(48)
         dirt = dsp.noise_burst(rng, 0.1, 150.0, 1400.0, 0.02, sr=sr)
         y = body.copy()
-        place(y, dirt, 0, 0.3)
+        place(y, dsp.modal([185.0], [0.02], [1.0], 0.12, sr), 0, 0.4)
+        place(y, dirt, 0, 0.5)
         ev.append((t, y, float(rng.uniform(0.8, 1.0))))
         t += rng.uniform(0.28, 0.5)
     return fade(sequence(ev, sr=sr), 0.001, 0.03, sr)
@@ -583,17 +585,19 @@ def munch(params, sr=SR):
     dur = _f(params, "dur", 2.5, 0.3, 30.0)
     n = n_of(dur, sr)
     imp = np.zeros(n, dtype=np.float32)
+    crush = np.zeros((3, n), dtype=np.float32)
     t = 0.05
     burst_left = int(rng.integers(5, 10))
     while t < dur - 0.08:
         strength = rng.uniform(0.55, 1.0)
-        k = int(rng.integers(5, 12))
-        offs = np.sort(rng.exponential(0.014, k))
+        k = int(rng.integers(10, 22))
+        offs = np.sort(rng.exponential(0.028, k))
         offs[0] = 0.0
         for j, o in enumerate(offs):
             i = int((t + o) * sr)
             if i < n:
-                imp[i] += strength * (1.0 if j == 0 else rng.uniform(0.15, 0.6)) * rng.choice([-1.0, 1.0])
+                imp[i] += strength * (1.0 if j == 0 else rng.uniform(0.2, 0.7)) * rng.choice([-1.0, 1.0])
+        crush[int(rng.integers(0, 3)), min(n - 1, int(t * sr))] += strength
         burst_left -= 1
         if burst_left <= 0:
             t += rng.uniform(0.35, 0.7)  # swallow / reposition
@@ -605,6 +609,8 @@ def munch(params, sr=SR):
     crisp = dsp.conv_same(imp, kern)
     jaw = dsp.conv_same(np.abs(imp) * (np.abs(imp) > 0.5), dsp.modal([310.0], [0.012], [1.0], 0.06, sr))
     y = crisp + 0.25 * jaw
+    for c in crush:  # the wet, fibrous part of each bite
+        y += 0.3 * dsp.conv_same(c, dsp.noise_burst(rng, 0.12, 1000.0, 6500.0, 0.03, attack=0.002, sr=sr))
     return fade(lp(y, 9500.0, 2, sr), 0.005, 0.05, sr)
 
 
@@ -642,19 +648,25 @@ def cage_rattle(params, sr=SR):
     n = n_of(dur, sr)
     y = np.zeros(n, dtype=np.float32)
     bars = []
-    for _ in range(5):
-        f = rng.uniform(1500.0, 2700.0)
-        bars.append(dsp.modal([f, f * 2.76, f * 5.4], [rng.uniform(0.05, 0.12), 0.04, 0.02], [1.0, 0.5, 0.2], 0.4, sr))
-    frame = dsp.modal([380.0, 610.0], [0.03, 0.02], [1.0, 0.5], 0.12, sr)
+    for _ in range(8):  # thin wire bars: short, inharmonic clinks rather than chimes
+        f = rng.uniform(900.0, 3200.0)
+        fr = [f * r for r in (1.0, 2.76, 5.40, 8.93) if f * r < 12000.0]
+        tau = rng.uniform(0.015, 0.045)
+        b = dsp.modal(fr, [tau / (i + 1) ** 0.7 for i in range(len(fr))], [1.0, 0.7, 0.4, 0.2][:len(fr)], 0.2, sr)
+        place(b, dsp.noise_burst(rng, 0.004, 2000.0, 9000.0, 0.001, sr=sr), 0, 0.5)
+        bars.append(b)
+    frame = dsp.noise_burst(rng, 0.06, 150.0, 700.0, 0.012, sr=sr)  # the tray knocking
     t = 0.03
     while t < dur - 0.05:
         blen = rng.uniform(0.25, 0.7)
-        rate = rng.uniform(9.0, 14.0)
+        rate = rng.uniform(10.0, 16.0)
         tb = t
         while tb < min(t + blen, dur - 0.03):
             a = rng.uniform(0.35, 1.0)
-            place(y, bars[int(rng.integers(0, 5))], int(tb * sr), a)
-            place(y, frame, int(tb * sr), 0.5 * a)
+            place(y, bars[int(rng.integers(0, 8))], int(tb * sr), a)
+            if rng.random() < 0.6:
+                place(y, bars[int(rng.integers(0, 8))], int((tb + rng.uniform(0.003, 0.012)) * sr), 0.6 * a)
+            place(y, frame, int(tb * sr), 0.45 * a)
             tb += (1.0 / rate) * rng.uniform(0.7, 1.4)
         t += blen + rng.uniform(0.15, 0.6)
     return fade(lp(y, 10000.0, 2, sr), 0.002, 0.1, sr)
@@ -671,7 +683,7 @@ def scurry(params, sr=SR):
     while t < dur - 0.01:
         tick = dsp.noise_burst(rng, 0.012, 2500.0, 7500.0, 0.0025, sr=sr)
         place(y, tick, int(t * sr), rng.uniform(0.4, 1.0))
-        place(y, dsp.modal([rng.uniform(260.0, 420.0)], [0.006], [1.0], 0.03, sr), int(t * sr), 0.2)
+        place(y, dsp.modal([rng.uniform(260.0, 420.0)], [0.006], [1.0], 0.03, sr), int(t * sr), 0.08)
         t += (1.0 / rate) * rng.uniform(0.75, 1.3)
     u = np.linspace(0.0, 1.0, n)
     y = y * bpc(n, [(0, 0.2), (0.3, 1.0), (0.7, 0.9), (1.0, 0.15)])
@@ -693,15 +705,15 @@ def paws(params, sr=SR):
         y = np.zeros(n, dtype=np.float32)
         thud_f = rng.uniform(105.0, 150.0) / k ** 0.5
         if surface in ("floor", "asphalt"):
-            place(y, dsp.modal([thud_f, thud_f * 2.3], [0.022, 0.012], [1.0, 0.4], 0.12, sr), 0, 0.9 * k)
-            place(y, dsp.noise_burst(rng, 0.03, 0, 350.0 if surface == "floor" else 260.0, 0.01, sr=sr), 0, 0.5 * k)
+            place(y, dsp.modal([thud_f, thud_f * 2.3], [0.022, 0.012], [1.0, 0.4], 0.12, sr), 0, 0.5 * k)
+            place(y, dsp.noise_burst(rng, 0.03, 0, 450.0 if surface == "floor" else 320.0, 0.01, sr=sr), 0, 0.4 * k)
             for _ in range(int(rng.integers(2, 4))):  # claws
                 dt = rng.uniform(0.0, 0.014)
                 if surface == "floor":
                     f = rng.uniform(3000.0, 5200.0)
                     c = dsp.modal([f, f * 1.6], [0.003, 0.002], [1.0, 0.5], 0.015, sr)
                     place(c, dsp.noise_burst(rng, 0.004, 2500.0, 9000.0, 0.0012, sr=sr), 0, 0.5)
-                    place(y, c, int(dt * sr), rng.uniform(0.12, 0.3))
+                    place(y, c, int(dt * sr), rng.uniform(0.2, 0.45))
                 else:
                     place(y, dsp.noise_burst(rng, 0.02, 1500.0, 5000.0, 0.006, sr=sr), int(dt * sr), rng.uniform(0.12, 0.25))
         elif surface == "leaves":

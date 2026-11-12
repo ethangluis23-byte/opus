@@ -139,8 +139,8 @@ def plush_rustle(params, sr=SR):
         t += rng.uniform(0.1, 0.3)
     out = np.zeros((n, 2), dtype=np.float32)
     for ch in range(2):
-        out[:, ch] = dsp.band_noise(n, rng, 700.0, 4500.0, slope=-4.0) * env
-    thump = lp(env * white(n, rng), 160.0, 2, sr) * 2.0
+        out[:, ch] = dsp.band_noise(n, rng, 500.0, 3500.0, slope=-5.0) * env
+    thump = lp(env * white(n, rng), 160.0, 2, sr) * 1.2
     out += thump[:, None]
     return fade(out, 0.01, 0.08, sr)
 
@@ -151,7 +151,7 @@ def glass_break(params, sr=SR):
     n = n_of(1.3, sr)
     y = np.zeros(n, dtype=np.float32)
     place(y, dsp.noise_burst(rng, 0.03, 1000.0, 9000.0, 0.006, sr=sr), 0, 1.0)
-    place(y, dsp.modal([240.0, 410.0], [0.03, 0.02], [1.0, 0.6], 0.15, sr), 0, 0.6)
+    place(y, dsp.modal([240.0, 410.0], [0.03, 0.02], [1.0, 0.6], 0.15, sr), 0, 0.3)
     for _ in range(46):
         t = min(rng.exponential(0.13), 0.95)
         f = float(np.exp(rng.uniform(np.log(2200.0), np.log(10500.0))))
@@ -173,7 +173,7 @@ def paper_flutter(params, sr=SR):
         m = n_of(rng.uniform(0.03, 0.06), sr)
         flap = dsp.band_noise(m, rng, 1500.0, 7000.0) * bpc(m, [(0, 0), (0.12, 1.0), (1.0, 0)])
         place(y, flap.astype(F32), int(t * sr), rng.uniform(0.5, 1.0))
-        place(y, dsp.modal([rng.uniform(180.0, 380.0)], [0.012], [1.0], 0.05, sr), int(t * sr), 0.25)
+        place(y, dsp.modal([rng.uniform(180.0, 380.0)], [0.012], [1.0], 0.05, sr), int(t * sr), 0.12)
         t += rng.uniform(0.045, 0.085)
     u = np.linspace(0, 1, n)
     y = y * bpc(n, [(0, 0.3), (0.3, 1.0), (0.7, 0.8), (1.0, 0)])
@@ -193,7 +193,7 @@ def water_drip(params, sr=SR):
     y = sequence(ev, sr=sr)
     space = str(params.get("space", "ruin"))
     if space in dsp.IR_SPECS:
-        return dsp.reverb(y, space, wet=_f(params, "wet", 0.28, 0, 1))
+        return dsp.reverb(y, space, wet=_f(params, "wet", 0.2, 0, 1))
     return y
 
 
@@ -242,7 +242,7 @@ def feeder_power_down(params, sr=SR):
     amp = bpc(m, [(0, 0.0), (0.04, 0.8), (0.5, 0.6), (1.0, 0.0)])
     motor = dsp.harmonic_voice(f, amp, None, tilt_db_oct=-6.0, fmax=3000.0, sr=sr)
     gear = dsp.band_noise(m, rng, 900.0, 3200.0) * amp * (0.5 + 0.5 * np.sin(TAU * np.cumsum(f) / sr))
-    ev.append((0.3, (motor / _rms(motor) + 0.45 * gear / _rms(gear)).astype(F32), 0.16))
+    ev.append((0.3, (motor / _rms(motor) + 0.2 * gear / _rms(gear)).astype(F32), 0.16))
     ev.append((1.1, dsp.modal([2400.0, 3900.0, 700.0], [0.004, 0.003, 0.01], [1.0, 0.6, 0.6], 0.05, sr), 0.6))
     return dsp.reverb(sequence(ev, sr=sr), "room", wet=0.12)
 
