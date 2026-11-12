@@ -56,7 +56,7 @@ def wind_street(params, sr=SR):
         body = dsp.moving_band_noise(n, rng, 300.0 * 2.0 ** (1.5 * gch), q=3.5, fmin=220.0, fmax=1100.0, per_oct=4.0, sr=sr)
         hiss = dsp.band_noise(n, rng, 1800.0, 6000.0, slope=-3.0) * gch ** 2 * 0.10
         out[:, ch] = body * gch * 0.8 + hiss
-    rumble = lp(dsp.brown(n, rng), 160.0, 2, sr) * (0.5 + 0.5 * g) * 1.1
+    rumble = dsp.band_noise(n, rng, 50.0, 220.0, slope=-3.0) * (0.5 + 0.5 * g) * 0.3
     out += rumble[:, None]
     fcw = 1100.0 * 2.0 ** (0.5 * smooth_noise(n, rng, 0.25))
     wh = dsp.moving_band_noise(n, rng, fcw, q=11.0, fmin=750.0, fmax=1800.0, per_oct=6.0, sr=sr)
@@ -91,7 +91,7 @@ def wind_high(params, sr=SR):
         body = dsp.moving_band_noise(n, rng, fc, q=1.3, fmin=500.0, fmax=2600.0, per_oct=2.5, sr=sr)
         air = dsp.band_noise(n, rng, 2500.0, 8000.0, slope=-4.0) * (0.5 + 0.5 * g) * 0.18
         out[:, ch] = body * g * 0.7 + air
-    out += (lp(dsp.brown(n, rng), 120.0, 2, sr) * (0.6 + 0.4 * g) * 0.8)[:, None]
+    out += (dsp.band_noise(n, rng, 60.0, 200.0, slope=-3.0) * (0.6 + 0.4 * g) * 0.2)[:, None]
     return out
 
 
@@ -103,13 +103,13 @@ def room_tone(params, sr=SR):
     n = _n(params, sr)
     tt = np.arange(n) / sr
     hum = np.zeros(n, dtype=np.float32)
-    for k, a in enumerate((1.0, 0.5, 0.25, 0.1, 0.05), start=1):
+    for k, a in enumerate((0.3, 1.0, 0.5, 0.3, 0.12, 0.06), start=1):  # 120 Hz leads, as in real mains hum
         hum += (a * np.sin(TAU * 60.0 * k * tt + rng.uniform(0, TAU))).astype(F32)
     hum *= 1.0 + 0.08 * smooth_noise(n, rng, 0.07)
     buzz = bp(white(n, rng), 90.0, 420.0, 2, sr) * (0.6 + 0.4 * np.sin(TAU * 120.0 * tt)) * 0.5
     out = np.zeros((n, 2), dtype=np.float32)
     for ch, hg in enumerate((0.85, 1.0)):
-        out[:, ch] = 0.25 * hg * (hum + buzz) + 0.16 * lp(dsp.pink(n, rng), 2500.0, 2, sr)
+        out[:, ch] = 0.2 * hg * (hum + buzz) + 0.22 * lp(hp(dsp.pink(n, rng), 120.0, 1, sr), 2500.0, 2, sr)
     if params.get("clock"):
         tick = dsp.modal([2600.0, 4200.0, 1100.0], [0.005, 0.004, 0.01], [1.0, 0.6, 0.5], 0.05, sr)
         tock = dsp.modal([2100.0, 3500.0, 950.0], [0.006, 0.004, 0.012], [1.0, 0.6, 0.6], 0.05, sr)
@@ -127,7 +127,7 @@ def room_dead(params, sr=SR):
     g = gust_env(n, rng, rate=0.1, depth=0.85, power=2.0)
     out = np.zeros((n, 2), dtype=np.float32)
     for ch in range(2):
-        out[:, ch] = lp(dsp.brown(n, rng), 260.0, 2, sr) * g * 0.9 + lp(dsp.pink(n, rng), 900.0, 2, sr) * 0.05
+        out[:, ch] = dsp.band_noise(n, rng, 80.0, 400.0, slope=-4.0) * g * 0.35 + lp(dsp.pink(n, rng), 900.0, 2, sr) * 0.05
     moan = dsp.moving_band_noise(n, rng, 240.0 * 2.0 ** (0.3 * smooth_noise(n, rng, 0.15)), q=8.0, fmin=170.0,
                                  fmax=360.0, per_oct=6.0, sr=sr) * g ** 2 * 0.3
     out += moan[:, None]
@@ -150,11 +150,11 @@ def ruin_interior(params, sr=SR):
     g = gust_env(n, rng, rate=0.08, depth=0.8, power=1.8)
     out = np.zeros((n, 2), dtype=np.float32)
     for ch in range(2):
-        out[:, ch] = lp(dsp.brown(n, rng), 130.0, 2, sr) * 0.6 + lp(dsp.pink(n, rng), 1200.0, 2, sr) * 0.04
+        out[:, ch] = dsp.band_noise(n, rng, 50.0, 200.0, slope=-3.0) * 0.12 + lp(dsp.pink(n, rng), 1200.0, 2, sr) * 0.05
     send = np.zeros((n, 2), dtype=np.float32)
     fc = 290.0 * 2.0 ** (0.45 * smooth_noise(n, rng, 0.12))
-    moan = dsp.moving_band_noise(n, rng, fc, q=12.0, fmin=180.0, fmax=460.0, per_oct=8.0, sr=sr) * g ** 1.5
-    send += dsp.pan_curve(moan * 0.35, 0.5 * smooth_noise(n, rng, 0.07))
+    moan = dsp.moving_band_noise(n, rng, fc, q=7.0, fmin=180.0, fmax=460.0, per_oct=6.0, sr=sr) * g ** 1.5
+    send += dsp.pan_curve(moan * 0.14, 0.5 * smooth_noise(n, rng, 0.07))
     for t in _events(rng, dur, 3.6, first=rng.uniform(0.5, 3.0), jitter=0.7):
         place(send, dsp.pan(drip(rng, sr), rng.uniform(-0.85, 0.85)), int(t * sr), rng.uniform(0.2, 0.55))
     for t in _events(rng, dur, 17.0, first=rng.uniform(6.0, 14.0)):
@@ -183,7 +183,7 @@ def _stream(n, rng, sr=SR):
         kern = np.sin(TAU * f0 * (1.0 + rng.uniform(0.3, 0.9) * tt / d) * tt) * np.exp(-tt / (d / 3.0))
         kern[:16] *= cos_ramp(16)
         bub += _poisson_layer(n, rng, 11.0, kern, 0.11, sr)
-    return (0.5 * flow + bub + 0.5 * lp(dsp.brown(n, rng), 180.0, 2, sr)).astype(F32)
+    return (0.5 * flow + bub + 0.12 * dsp.band_noise(n, rng, 60.0, 220.0, slope=-3.0)).astype(F32)
 
 
 def river(params, sr=SR):
@@ -204,15 +204,16 @@ def rain(params, sr=SR):
     out = np.zeros((n, 2), dtype=np.float32)
     wave = 1.0 + 0.18 * smooth_noise(n, rng, 0.2)
     hiss_mag = lambda f: dsp.mag_band(f, 500.0, 13000.0) * (0.35 + dsp.mag_peak(f, 4500.0, 0.7)) * dsp.mag_slope(f, -1.5)
-    roof = dsp.modal([900.0, 1700.0], [0.003, 0.002], [1.0, 0.6], 0.02, sr)
-    place(roof, dsp.noise_burst(rng, 0.006, 500.0, 3000.0, 0.002, sr=sr), 0, 0.6)
+    # several differently tuned, very short tap kernels: a broad hump, no ringing pitch
+    roofs = [dsp.noise_burst(rng, 0.012, lo, hi, tau, sr=sr) for lo, hi, tau in
+             ((500.0, 2500.0, 0.003), (700.0, 3500.0, 0.002), (400.0, 1800.0, 0.004), (900.0, 4500.0, 0.002))]
     leaf = dsp.noise_burst(rng, 0.02, 0, 1500.0, 0.005, sr=sr)
     for ch in range(2):
         hiss = dsp.shaped_noise(n, rng, hiss_mag, sr) * (0.12 + 0.3 * inten)
-        r = _poisson_layer(n, rng, 90.0 + 500.0 * inten, roof, 0.1 + 0.16 * inten, sr)
+        r = sum(_poisson_layer(n, rng, (90.0 + 500.0 * inten) / 4.0, k, (0.1 + 0.16 * inten) / 2.0, sr) for k in roofs)
         l = _poisson_layer(n, rng, 15.0 + 70.0 * inten, leaf, 0.06 + 0.08 * inten, sr)
         out[:, ch] = (hiss + r + l) * wave
-    out += (lp(dsp.brown(n, rng), 220.0, 2, sr) * (0.12 + 0.12 * inten))[:, None]
+    out += (dsp.band_noise(n, rng, 70.0, 260.0, slope=-3.0) * (0.04 + 0.04 * inten))[:, None]
     tins = []
     for _ in range(4):
         f = rng.uniform(1000.0, 1900.0)
@@ -327,7 +328,7 @@ def _bird_layer(n, rng, density, kinds=None, far_bias=0.0, sr=SR):
         kind = kinds[int(rng.choice(len(kinds), p=w))]
         far = float(np.clip(rng.uniform(0.0, 1.0) + far_bias, 0.0, 1.0))
         p = rng.uniform(-0.95, 0.95)
-        gain = (1.0 - 0.8 * far) * rng.uniform(0.7, 1.0) * (0.55 if kind == "coo" else 1.0)
+        gain = (1.0 - 0.8 * far) * rng.uniform(0.7, 1.0) * (0.4 if kind == "coo" else 1.0)
         songs = [lp(_phrase(kind, rng, sr), 12000.0 * (0.3 ** far), 1, sr) for _ in range(2)]  # each bird has its own repertoire
         gap = rng.uniform(2.5, 7.0) / (0.6 + density)
         t = rng.uniform(0.0, gap * 1.5)
@@ -359,7 +360,7 @@ def forest(params, sr=SR):
         canopy = dsp.band_noise(n, rng, 1500.0, 7000.0, slope=-3.0) * gust_env(n, rng, rate=0.08, depth=0.7) * 0.05
         f = (5800.0, 6150.0)[ch] + 60.0 * smooth_noise(n, rng, 0.3)
         insects = tone(f, (0.5 + 0.5 * np.cos(TAU * 31.0 * tt)) ** 2 * (0.6 + 0.4 * smooth_noise(n, rng, 0.1)), sr) * 0.006
-        dry[:, ch] += canopy + insects + lp(dsp.brown(n, rng), 150.0, 2, sr) * 0.03
+        dry[:, ch] += canopy + insects + dsp.band_noise(n, rng, 70.0, 220.0, slope=-3.0) * 0.008
     water = lp(_stream(n, rng, sr), 1400.0, 2, sr) * 0.035
     dry += dsp.pan(water, -0.45)
     knock = lp(dsp.modal([900.0, 1500.0], [0.006, 0.004], [1.0, 0.6], 0.04, sr), 4000.0, 1, sr)
@@ -384,7 +385,7 @@ def meadow(params, sr=SR):
     for ch in range(2):
         gch = g * (1.0 + 0.15 * smooth_noise(n, rng, 0.5))
         dry[:, ch] += dsp.band_noise(n, rng, 800.0, 5000.0, slope=-3.0) * gch * 0.12
-        dry[:, ch] += lp(dsp.brown(n, rng), 140.0, 2, sr) * (0.5 + 0.5 * g) * 0.12
+        dry[:, ch] += dsp.band_noise(n, rng, 70.0, 220.0, slope=-3.0) * (0.5 + 0.5 * g) * 0.03
     for _ in range(4):  # grasshoppers
         p = rng.uniform(-0.9, 0.9)
         lvl = rng.uniform(0.012, 0.035)
@@ -430,8 +431,8 @@ def night(params, sr=SR):
         f = rng.uniform(2700.0, 3100.0)
         trill = np.sin(TAU * f * tt).astype(F32) * (0.5 + 0.5 * np.cos(TAU * rng.uniform(40.0, 47.0) * tt)) ** 2
         out[:, ch] += trill * (0.6 + 0.4 * smooth_noise(n, rng, 0.08)) * 0.012
-        out[:, ch] += lp(dsp.brown(n, rng), 220.0, 2, sr) * gust_env(n, rng, rate=0.07, depth=0.6) * 0.1
-        out[:, ch] += lp(dsp.pink(n, rng), 2000.0, 1, sr) * 0.01
+        out[:, ch] += dsp.band_noise(n, rng, 80.0, 400.0, slope=-4.0) * gust_env(n, rng, rate=0.07, depth=0.6) * 0.012
+        out[:, ch] += lp(dsp.pink(n, rng), 2000.0, 1, sr) * 0.006
     for t in _events(rng, dur, 36.0, first=rng.uniform(7.0, 18.0)):
         h = owl_hoot({"_seed": int(rng.integers(0, 2 ** 31)), "dist": 0.85}, sr)
         h = h / (np.max(np.abs(h)) + 1e-9)
@@ -446,7 +447,7 @@ def space(params, sr=SR):
     tt = np.arange(n) / sr
     out = np.zeros((n, 2), dtype=np.float32)
     for ch in range(2):
-        for f, a in ((36.71, 0.5), (55.0, 0.7), (73.42, 1.0), (110.0, 0.5), (146.83, 0.25)):
+        for f, a in ((36.71, 0.3), (55.0, 0.5), (73.42, 1.0), (110.0, 0.8), (146.83, 0.6), (220.0, 0.25)):
             am = 0.75 + 0.25 * np.sin(TAU * rng.uniform(0.03, 0.08) * tt + rng.uniform(0, TAU))
             out[:, ch] += (a * am * np.sin(TAU * (f + rng.uniform(-0.15, 0.15)) * tt + rng.uniform(0, TAU))).astype(F32) * 0.2
         x = white(n, rng)
@@ -454,7 +455,7 @@ def space(params, sr=SR):
         for f in (293.66, 440.0, 587.33, 698.46):
             r = dsp.resonator(x, f, 70.0, sr)
             glass += r / _rms(r) * (0.5 + 0.5 * np.sin(TAU * rng.uniform(0.02, 0.06) * tt + rng.uniform(0, TAU)))
-        out[:, ch] += glass * 0.012 + dsp.band_noise(n, rng, 2000.0, 5000.0, slope=-6.0) * 0.004
+        out[:, ch] += glass * 0.03 + dsp.band_noise(n, rng, 2000.0, 5000.0, slope=-6.0) * 0.004
     return out
 
 
@@ -503,8 +504,8 @@ def city_alive(params, sr=SR):
     out = np.zeros((n, 2), dtype=np.float32)
     send = np.zeros((n, 2), dtype=np.float32)
     for ch in range(2):
-        out[:, ch] += lp(dsp.brown(n, rng), 240.0, 2, sr) * 0.5 * (1.0 + 0.15 * smooth_noise(n, rng, 0.15))
-        out[:, ch] += dsp.band_noise(n, rng, 300.0, 1400.0, slope=-4.0) * 0.05 * (1.0 + 0.3 * smooth_noise(n, rng, 0.2))
+        out[:, ch] += dsp.band_noise(n, rng, 70.0, 320.0, slope=-3.0) * 0.1 * (1.0 + 0.15 * smooth_noise(n, rng, 0.15))
+        out[:, ch] += dsp.band_noise(n, rng, 300.0, 1400.0, slope=-4.0) * 0.06 * (1.0 + 0.3 * smooth_noise(n, rng, 0.2))
     for t in _events(rng, dur, 5.0, first=rng.uniform(0.0, 3.0), jitter=0.6):  # cars passing
         m = n_of(rng.uniform(3.0, 5.5), sr)
         u = np.linspace(0.0, 1.0, m)
@@ -534,10 +535,10 @@ def city_alive(params, sr=SR):
             place(out, dsp.pan(bell, p), int((t + 0.17 * j) * sr), 0.03)
             place(send, dsp.pan(bell, p), int((t + 0.17 * j) * sr), 0.012)
     bab = _babble(n, rng, sr=sr)
-    out += bab * 0.07
-    send += bab * 0.03
+    out += bab * 0.11
+    send += bab * 0.04
     bd, bs = _bird_layer(n, rng, 0.12, kinds=("chirp", "cheep", "coo", "chirp"), sr=sr)
-    out += bd * 0.35
+    out += bd * 0.4
     send += bs * 0.3
     return _with_send(out + send, send, "street", 0.8, n)
 
