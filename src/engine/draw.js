@@ -80,12 +80,13 @@ export function union(...ps) {
       if (probe0 && !PROBE.isPointInPath(u, c0[0], c0[1])) { unionStats.fallbacks++; return join(...ps); }
       ok = !probe || PROBE.isPointInPath(u, ci[0], ci[1]);
     }
-    if (!ok) { u.addPath(ps[i]); unionStats.fallbacks++; }
+    if (!ok) { u.closePath(); u.addPath(ps[i]); u.closePath(); unionStats.fallbacks++; }
   }
   return u;
 }
-// Concatenate paths without boolean ops (fine for fills when paths share winding).
-export function join(...ps) { const u = new Path2D(); for (const p of ps) u.addPath(p); return u; }
+// Concatenate paths without boolean ops (fine for fills when paths share winding). Each contour is closed as it is
+// appended: Path2D.addPath extends an open contour (e.g. a full arc/ellipse) into the next one, painting wedges.
+export function join(...ps) { const u = new Path2D(); for (const p of ps) { u.addPath(p); u.closePath(); } return u; }
 
 export function fill(c, path, style) { c.fillStyle = style; c.fill(path); }
 export function line(c, path, style, w = 2, cap = 'round') {
