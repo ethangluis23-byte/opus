@@ -23,8 +23,9 @@
 //   eyeShine        0..1 night eye-shine: glowing green-gold eyes with a halo (see anchors.eyes to re-glow after grade)
 //   tailFlick       0..1 tail-tip twitching (mood default; hunting 0.6)    pupil   0..1 dilation override (1 = round)
 //   wet             0..1 rain-soaked: darker clumped fur, slimmer spiky tail, glossy streaks
-//   slope           body pitch in radians (> 0 = nose down, e.g. walking down stairs); the feet land on the inclined
-//                   line through the ground point
+//   slope           body pitch in radians (> 0 = nose down, e.g. walking down stairs; < 0 = climbing); the feet land
+//                   on the inclined line through the ground point. Move (x, y) along the incline (y += dx * tan(slope)
+//                   when facing right) and keep phase = horizontal distance / catStride: the paws stay planted.
 //   ear, lid, blink overrides: ears -1 (flat) .. 1 (pricked forward), upper lid 0..1, blink signal 0..1
 //   shadow          contact shadow: true (default, 0.3) | false | strength
 // }) → anchors in the caller's coordinates: { eyes: [[x, y] near, [x, y] far], eyeR (world radius of the near eye),
@@ -157,7 +158,7 @@ const POSES = {
   loaf: { ...P0, hip: [-32, -30], sh: [28, -32], belly: 1.06, back: 21, froot: [0, 6], ftar: [39, -3], hk: [22, 14], htar: [-6, -3],
     haunch: [6, 6, 22, 21, 0], head: [6, -17], tail: { a0: PI - 1.1, c0: -0.42, c1: -0.2, front: 1, base: [-0.3, -6] } },
   curl: { ...P0, hip: [-24, -24], sh: [16, -24], arch: 16, back: 20, froot: [0, 4], ftar: [28, -3], hk: [20, 12], htar: [4, -3],
-    haunch: [4, 4, 23, 19, 0], head: [12, 10], hrot: 0.5, tail: { a0: PI - 1.15, c0: -0.3, c1: -0.1, front: 2, base: [-0.3, -12] } },
+    haunch: [4, 4, 23, 19, 0], head: [12, 10], hrot: 0.5, tail: { a0: PI - 1.15, c0: -0.3, c1: -0.17, front: 2, base: [-0.26, -10] } },
   crouch: { ...P0, hip: [-32, -42], sh: [28, -32], froot: [0, -14], ftar: [46, 0], hk: [14, 22], htar: [-26, 0],
     haunch: [2, 8, 18, 21, -0.1], head: [22, 8], hrot: 0.05, gait: 1 },
   arch: { ...P0, hip: [-26, -80], sh: [24, -68], arch: 22, archV: 0.85, froot: [0, 8], ftar: [16, 0], hk: [6, 30], htar: [-14, 0],
@@ -427,7 +428,10 @@ export function drawCat(c, p = {}) {
     up.push([q[0] - dy * w, q[1] + dx * w]); lo.push([q[0] + dy * w, q[1] - dx * w]);
   }
   { const e = cen[segs], q = cen[segs - 1], dl = Math.hypot(e[0] - q[0], e[1] - q[1]) || 1; up.push([e[0] + ((e[0] - q[0]) / dl) * w, e[1] + ((e[1] - q[1]) / dl) * w]); }
-  const tailPath = addBlob(new Path2D(), [...up, ...lo.reverse()], false); // open at the root: fill closes it, stroke leaves no cap
+  lo.reverse();
+  const tailPath = addBlob(new Path2D(), [...up, ...lo], false); // open at the root: the fill closes it, the stroke leaves no cap
+  // a tail wrapped in front of the body grows out of it: no outline along its first segment
+  const sk2 = spiky > 0 ? 3 : 2, tailEdge = TL.front ? addBlob(new Path2D(), [...up.slice(sk2), ...lo.slice(0, lo.length - sk2)], false) : tailPath;
 
   // ---- draw ----
   c.save();
@@ -456,9 +460,9 @@ export function drawCat(c, p = {}) {
         const e = cen[segs], q = cen[segs - 1];
         fill(c, oval(e[0], e[1], 13, 10, Math.atan2(e[1] - q[1], e[0] - q[0])), C.stripeTip);
       }
-      c.save(); c.translate(1.1 * flip, 2.4); c.globalAlpha = 0.3; line(c, tailPath, C.light, lw * 2.2); c.restore();
+      c.save(); c.translate(1.1 * flip, 2.4); c.globalAlpha = 0.3; line(c, tailEdge, C.light, lw * 2.2); c.restore();
     });
-    line(c, tailPath, L, lw);
+    line(c, tailEdge, L, lw);
   };
   if (!TL.front) drawTail(false);
 
