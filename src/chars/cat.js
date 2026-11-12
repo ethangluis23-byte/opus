@@ -23,8 +23,9 @@
 //   eyeShine        0..1 night eye-shine: glowing green-gold eyes with a halo (see anchors.eyes to re-glow after grade)
 //   tailFlick       0..1 tail-tip twitching (mood default; hunting 0.6)    pupil   0..1 dilation override (1 = round)
 //   wet             0..1 rain-soaked: darker clumped fur, slimmer spiky tail, glossy streaks
-//   slope           body pitch in radians (> 0 = nose down, e.g. walking down stairs); the feet land on the inclined
-//                   line through the ground point
+//   slope           body pitch in radians (> 0 = nose down, e.g. walking down stairs; < 0 = climbing); the feet land
+//                   on the inclined line through the ground point. Move (x, y) along the incline (y += dx * tan(slope)
+//                   when facing right) and keep phase = horizontal distance / catStride: the paws stay planted.
 //   ear, lid, blink overrides: ears -1 (flat) .. 1 (pricked forward), upper lid 0..1, blink signal 0..1
 //   shadow          contact shadow: true (default, 0.3) | false | strength
 // }) → anchors in the caller's coordinates: { eyes: [[x, y] near, [x, y] far], eyeR (world radius of the near eye),
