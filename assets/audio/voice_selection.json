@@ -1,0 +1,294 @@
+{
+ "chosen": "am_michael",
+ "lang": "a",
+ "rule": "lowest median F0 among zero-error quality-group candidates",
+ "note": "",
+ "median_f0": 115.5,
+ "pitch_shift_semitones": -0.53,
+ "test_lines": [
+  "1.6",
+  "5.3",
+  "10.10"
+ ],
+ "asr_model": "base.en",
+ "candidates": [
+  {
+   "voice": "am_michael",
+   "lang": "a",
+   "median_f0": 115.5,
+   "f0_p05": 91.7,
+   "f0_p95": 160.6,
+   "words_per_s": 2.787,
+   "asr_errors": 0,
+   "quality_group": true,
+   "lines": [
+    {
+     "id": "1.6",
+     "median_f0": 112.6,
+     "speech_s": 5.088,
+     "words": 16,
+     "asr": "a golden retriever waits by the front door. Certain his family will be home any minute.",
+     "asr_errors": 0,
+     "diffs": []
+    },
+    {
+     "id": "5.3",
+     "median_f0": 116.2,
+     "speech_s": 10.25,
+     "words": 25,
+     "asr": "Dogpacks now patrol territories of their own. At the borders, rivals meet with raised hackles and warning barks. Most standoffs end without a fight.",
+     "asr_errors": 0,
+     "diffs": []
+    },
+    {
+     "id": "10.10",
+     "median_f0": 122.4,
+     "speech_s": 2.241,
+     "words": 8,
+     "asr": "But to them, we were their entire world.",
+     "asr_errors": 0,
+     "diffs": []
+    }
+   ]
+  },
+  {
+   "voice": "am_fenrir",
+   "lang": "a",
+   "median_f0": 132.0,
+   "f0_p05": 92.2,
+   "f0_p95": 220.9,
+   "words_per_s": 3.034,
+   "asr_errors": 1,
+   "quality_group": true,
+   "lines": [
+    {
+     "id": "1.6",
+     "median_f0": 129.7,
+     "speech_s": 4.867,
+     "words": 16,
+     "asr": "A golden retriever waits by the front door, cert his family will be home any minute.",
+     "asr_errors": 1,
+     "diffs": [
+      "certain -> cert"
+     ]
+    },
+    {
+     "id": "5.3",
+     "median_f0": 131.2,
+     "speech_s": 9.409,
+     "words": 25,
+     "asr": "Dogpacks now patrol territories of their own. At the borders, rivals meet with raised hackles and warning-barks. Most standoffs end without a fight.",
+     "asr_errors": 0,
+     "diffs": []
+    },
+    {
+     "id": "10.10",
+     "median_f0": 135.0,
+     "speech_s": 1.876,
+     "words": 8,
+     "asr": "But to them, we were their entire world.",
+     "asr_errors": 0,
+     "diffs": []
+    }
+   ]
+  },
+  {
+   "voice": "bm_george",
+   "lang": "b",
+   "median_f0": 142.2,
+   "f0_p05": 81.0,
+   "f0_p95": 180.3,
+   "words_per_s": 2.765,
+   "asr_errors": 0,
+   "quality_group": true,
+   "lines": [
+    {
+     "id": "1.6",
+     "median_f0": 143.1,
+     "speech_s": 5.546,
+     "words": 16,
+     "asr": "A golden retriever waits by the front door, certain his family will be home any minute.",
+     "asr_errors": 0,
+     "diffs": []
+    },
+    {
+     "id": "5.3",
+     "median_f0": 142.2,
+     "speech_s": 9.674,
+     "words": 25,
+     "asr": "Dogpacks now patrol territories of their own. At the borders, rivals meet with raised hackles and warning barks. Most standoffs end without a fight.",
+     "asr_errors": 0,
+     "diffs": []
+    },
+    {
+     "id": "10.10",
+     "median_f0": 151.6,
+     "speech_s": 2.503,
+     "words": 8,
+     "asr": "But to them, we were their entire world.",
+     "asr_errors": 0,
+     "diffs": []
+    }
+   ]
+  },
+  {
+   "voice": "am_onyx",
+   "lang": "a",
+   "median_f0": 85.6,
+   "f0_p05": 50.0,
+   "f0_p95": 112.9,
+   "words_per_s": 3.129,
+   "asr_errors": 0,
+   "quality_group": false,
+   "lines": [
+    {
+     "id": "1.6",
+     "median_f0": 82.6,
+     "speech_s": 4.945,
+     "words": 16,
+     "asr": "A golden retriever waits by the front door, certain his family will be home any minute.",
+     "asr_errors": 0,
+     "diffs": []
+    },
+    {
+     "id": "5.3",
+     "median_f0": 86.6,
+     "speech_s": 8.048,
+     "words": 25,
+     "asr": "Dogpacks now patrol territories of their own. At the borders, rivals meet with raised hackles and warning barks. Most standoffs end without a fight.",
+     "asr_errors": 0,
+     "diffs": []
+    },
+    {
+     "id": "10.10",
+     "median_f0": 84.6,
+     "speech_s": 2.669,
+     "words": 8,
+     "asr": "But to them, we were their entire world.",
+     "asr_errors": 0,
+     "diffs": []
+    }
+   ]
+  },
+  {
+   "voice": "am_eric",
+   "lang": "a",
+   "median_f0": 161.5,
+   "f0_p05": 101.2,
+   "f0_p95": 223.5,
+   "words_per_s": 3.548,
+   "asr_errors": 2,
+   "quality_group": false,
+   "lines": [
+    {
+     "id": "1.6",
+     "median_f0": 158.7,
+     "speech_s": 4.04,
+     "words": 16,
+     "asr": "A golden retriever waits by the front door, certain his family will be home any minute.",
+     "asr_errors": 0,
+     "diffs": []
+    },
+    {
+     "id": "5.3",
+     "median_f0": 162.5,
+     "speech_s": 7.745,
+     "words": 25,
+     "asr": "Dogpaks now patrol territories of their own. At the borders, rivals meet with raised hackles and warning barks. Most standoffs end without a fight.",
+     "asr_errors": 2,
+     "diffs": [
+      "dog -> ∅",
+      "packs -> dogpaks"
+     ]
+    },
+    {
+     "id": "10.10",
+     "median_f0": 162.5,
+     "speech_s": 2.025,
+     "words": 8,
+     "asr": "But to them, we were their entire world.",
+     "asr_errors": 0,
+     "diffs": []
+    }
+   ]
+  },
+  {
+   "voice": "am_fenrir,am_michael",
+   "lang": "a",
+   "median_f0": 127.5,
+   "f0_p05": 92.8,
+   "f0_p95": 181.5,
+   "words_per_s": 2.88,
+   "asr_errors": 0,
+   "quality_group": true,
+   "lines": [
+    {
+     "id": "1.6",
+     "median_f0": 127.1,
+     "speech_s": 5.058,
+     "words": 16,
+     "asr": "A golden retriever waits by the front door, certain his family will be home any minute.",
+     "asr_errors": 0,
+     "diffs": []
+    },
+    {
+     "id": "5.3",
+     "median_f0": 127.8,
+     "speech_s": 9.993,
+     "words": 25,
+     "asr": "Dogpacks now patrol territories of their own. At the borders, rivals meet with raised hackles and warning barks. Most standoffs end without a fight.",
+     "asr_errors": 0,
+     "diffs": []
+    },
+    {
+     "id": "10.10",
+     "median_f0": 127.5,
+     "speech_s": 1.965,
+     "words": 8,
+     "asr": "But to them, we were their entire world.",
+     "asr_errors": 0,
+     "diffs": []
+    }
+   ]
+  },
+  {
+   "voice": "bm_george,am_fenrir",
+   "lang": "a",
+   "median_f0": 141.4,
+   "f0_p05": 95.2,
+   "f0_p95": 194.3,
+   "words_per_s": 2.892,
+   "asr_errors": 0,
+   "quality_group": true,
+   "lines": [
+    {
+     "id": "1.6",
+     "median_f0": 139.0,
+     "speech_s": 5.058,
+     "words": 16,
+     "asr": "A golden retriever waits by the front door, certain his family will be home any minute.",
+     "asr_errors": 0,
+     "diffs": []
+    },
+    {
+     "id": "5.3",
+     "median_f0": 141.4,
+     "speech_s": 9.725,
+     "words": 25,
+     "asr": "Dog packs now patrol territories of their own. At the borders, rivals meet with raised hackles and warning barks. Most standoffs end without a fight.",
+     "asr_errors": 0,
+     "diffs": []
+    },
+    {
+     "id": "10.10",
+     "median_f0": 144.7,
+     "speech_s": 2.159,
+     "words": 8,
+     "asr": "But to them, we were their entire world.",
+     "asr_errors": 0,
+     "diffs": []
+    }
+   ]
+  }
+ ]
+}
