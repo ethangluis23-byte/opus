@@ -87,10 +87,11 @@ function poseMix(pose, S, FL) {
   return { hip: lerp2(a.hip, b.hip, k), sh: lerp2(a.sh, b.sh, k), neck: lerp(a.neck, b.neck, k), fmode: a.fmode.map((v, i) => lerp(v, b.fmode[i], k)), fold: lerp(a.fold, b.fold, k), hfx: lerp(a.hfx, b.hfx, k) };
 }
 
-// World distance covered per gait cycle (advance phase by distance / dogStride to keep feet planted).
+// World distance covered per gait cycle (advance phase by distance / dogStride to keep feet planted). A planted foot
+// sweeps `stride` while in contact, i.e. during `duty` of the cycle, so the body covers stride / duty per cycle.
 export function dogStride(gait = 'walk', v = 'golden', s = 1, puppy = 0) {
   const V = typeof v === 'string' ? DOGS[v] : { ...DOGS.golden, ...v };
-  return GAITS[gait].stride * lerp(V.legK ?? 1, 1, 0.3) * lerp(1, 0.7, puppy) * (V.size ?? 1) * s;
+  return (GAITS[gait].stride / GAITS[gait].duty) * lerp(V.legK ?? 1, 1, 0.3) * lerp(1, 0.7, puppy) * (V.size ?? 1) * s;
 }
 
 const EAR_NEAR = [
