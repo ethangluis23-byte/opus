@@ -68,24 +68,25 @@ const PROBE = createCanvas(1, 1).getContext('2d');
 const centre = (q) => { const b = q.getBounds(); return [(b[0] + b[2]) / 2, (b[1] + b[3]) / 2]; };
 export const unionStats = { ops: 0, retries: 0, fallbacks: 0 };
 export function union(...ps) {
-  const u = new Path2D(ps[0]);
+  let u = new Path2D(ps[0]);
   const c0 = centre(ps[0]), probe0 = PROBE.isPointInPath(ps[0], c0[0], c0[1]);
   for (let i = 1; i < ps.length; i++) {
     const ci = centre(ps[i]), probe = PROBE.isPointInPath(ps[i], ci[0], ci[1]);
     let ok = false;
     for (let k = 0; k < 3 && !ok; k++) {
       let q = ps[i];
-      if (k) { q = new Path2D(); q.addPath(ps[i], { a: 1, b: 0, c: 0, d: 1, e: 0.037 * k, f: -0.029 * k }); unionStats.retries++; }
+      if (k) { q = new Path2D(ps[i]); q.transform({ a: 1, b: 0, c: 0, d: 1, e: 0.037 * k, f: -0.029 * k }); unionStats.retries++; }
       u.op(q, UNION); unionStats.ops++;
       if (probe0 && !PROBE.isPointInPath(u, c0[0], c0[1])) { unionStats.fallbacks++; return join(...ps); }
       ok = !probe || PROBE.isPointInPath(u, ci[0], ci[1]);
     }
-    if (!ok) { u.addPath(ps[i]); unionStats.fallbacks++; }
+    if (!ok) { u = join(u, ps[i]); unionStats.fallbacks++; }
   }
   return u;
 }
-// Concatenate paths without boolean ops (fine for fills when paths share winding).
-export function join(...ps) { const u = new Path2D(); for (const p of ps) u.addPath(p); return u; }
+// Concatenate paths without boolean ops (fine for fills when paths share winding). Built from SVG path data because
+// Path2D.addPath in this canvas build corrupts appended arc/ellipse contours (fills lose or gain wedges).
+export function join(...ps) { return new Path2D(ps.map((p) => p.toSVGString()).join(' ')); }
 
 export function fill(c, path, style) { c.fillStyle = style; c.fill(path); }
 export function line(c, path, style, w = 2, cap = 'round') {
