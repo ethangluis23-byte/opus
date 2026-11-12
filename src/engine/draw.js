@@ -1,5 +1,5 @@
 // Vector drawing primitives shared by every illustration in the film.
-import { Path2D } from '@napi-rs/canvas';
+import { Path2D, createCanvas } from '@napi-rs/canvas';
 import { TAU, clamp, alpha } from './util.js';
 
 const UNION = 2; // PathOp.Union (const enum in the typings, so not available at runtime)
@@ -60,10 +60,28 @@ export function rrect(x, y, w, h, r = 0) {
 }
 export function rect(x, y, w, h) { const p = new Path2D(); p.rect(x, y, w, h); return p; }
 
-// Boolean union of paths (use for merged silhouettes and clip shapes).
+// Boolean union of paths (use for merged silhouettes and clip shapes). Skia's op() can silently drop an operand when
+// curves are near-tangent (a limb vanishing for single frames = flicker), so every step is verified with a
+// point-in-path probe at the operand's bounds centre (when that point lies inside the operand) and retried with a
+// sub-pixel nudge; as a last resort the operand is appended un-merged (nonzero fill stays correct).
+const PROBE = createCanvas(1, 1).getContext('2d');
+const centre = (q) => { const b = q.getBounds(); return [(b[0] + b[2]) / 2, (b[1] + b[3]) / 2]; };
+export const unionStats = { ops: 0, retries: 0, fallbacks: 0 };
 export function union(...ps) {
   const u = new Path2D(ps[0]);
-  for (let i = 1; i < ps.length; i++) u.op(ps[i], UNION);
+  const c0 = centre(ps[0]), probe0 = PROBE.isPointInPath(ps[0], c0[0], c0[1]);
+  for (let i = 1; i < ps.length; i++) {
+    const ci = centre(ps[i]), probe = PROBE.isPointInPath(ps[i], ci[0], ci[1]);
+    let ok = false;
+    for (let k = 0; k < 3 && !ok; k++) {
+      let q = ps[i];
+      if (k) { q = new Path2D(); q.addPath(ps[i], { a: 1, b: 0, c: 0, d: 1, e: 0.037 * k, f: -0.029 * k }); unionStats.retries++; }
+      u.op(q, UNION); unionStats.ops++;
+      if (probe0 && !PROBE.isPointInPath(u, c0[0], c0[1])) { unionStats.fallbacks++; return join(...ps); }
+      ok = !probe || PROBE.isPointInPath(u, ci[0], ci[1]);
+    }
+    if (!ok) { u.addPath(ps[i]); unionStats.fallbacks++; }
+  }
   return u;
 }
 // Concatenate paths without boolean ops (fine for fills when paths share winding).
