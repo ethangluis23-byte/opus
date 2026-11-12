@@ -30,9 +30,11 @@ let cached = null;
 export async function getFilm() {
   if (cached) return cached;
   const scenes = [];
+  // LP_SCENES=3,4 loads only those scene modules (placeholders elsewhere) so one scene can be previewed in isolation.
+  const only = process.env.LP_SCENES ? new Set(process.env.LP_SCENES.split(',').map(Number)) : null;
   for (let n = 1; n <= 10; n++) {
     const file = path.join(ROOT, 'src/film', `scene${String(n).padStart(2, '0')}.js`);
-    if (fs.existsSync(file)) scenes.push((await import(pathToFileURL(file).href)).default);
+    if (fs.existsSync(file) && (!only || only.has(n))) scenes.push((await import(pathToFileURL(file).href)).default);
     else scenes.push(placeholder(n));
   }
   cached = makeFilm(scenes, narration, DURATION);
