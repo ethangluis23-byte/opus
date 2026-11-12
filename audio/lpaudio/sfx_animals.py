@@ -78,10 +78,10 @@ def _bark(rng, f0p, fs, dur, harsh, sr=SR):
     mouth = bpc(n, [(0, 0.70), (0.25, 1.0), (0.6, 1.0), (1.0, 0.76)])  # opens, then closes
     F = (600.0 * fs * mouth, 1700.0 * fs * (0.9 + 0.1 * mouth), 2900.0 * fs, 4100.0 * fs)
     B = (170.0 * fs, 280.0 * fs, 420.0 * fs, 560.0 * fs)
-    G = (1.0, 0.75, 0.42, 0.22)
+    G = (1.0, 0.9, 0.5, 0.28)
     amp = env_ar(n, 0.010, dur * 0.30, sr) * np.exp(-1.1 * u)
     amp = amp * (1.0 + 0.12 * harsh * smooth_noise(n, rng, 90.0))
-    v = harmonic_voice(f0, amp, (F, B, G), tilt_db_oct=-7.0, fmax=9000.0, sub=0.22 + 0.35 * harsh, sr=sr)
+    v = harmonic_voice(f0, amp, (F, B, G), tilt_db_oct=-5.5, fmax=9000.0, sub=0.22 + 0.35 * harsh, sr=sr)
     nz = formant_noise(n, rng, F, tuple(b * 1.7 for b in B), (0.8, 0.9, 0.7, 0.5), tilt_db_oct=-2.0,
                        lo=300.0 * fs, hi=9000.0, sr=sr)
     pulse = 0.65 + 0.35 * np.sin(TAU * np.cumsum(f0) / sr)
@@ -222,19 +222,19 @@ def puppy_yip(params, sr=SR):
     count = _i(params, "count", 2, 1, 12)
     ev = []
     t = 0.0
-    base = rng.uniform(1000.0, 1250.0)
+    base = rng.uniform(880.0, 1080.0)
     for i in range(count):
         dur = rng.uniform(0.085, 0.13)
         n = n_of(dur, sr)
         f0 = base * rng.uniform(0.93, 1.1) * bpc(n, [(0, 0.72), (0.35, 1.0), (0.7, 0.95), (1.0, 0.76)])
-        f0 = f0 * (1.0 + 0.012 * smooth_noise(n, rng, 120.0))
+        f0 = f0 * (1.0 + 0.02 * smooth_noise(n, rng, 120.0))
         mouth = bpc(n, [(0, 0.75), (0.3, 1.0), (1.0, 0.8)])
-        F = (1350.0 * mouth, 3600.0, 5600.0)
-        B = (350.0, 600.0, 900.0)
+        F = (1350.0 * mouth, 3300.0, 5200.0)
+        B = (400.0, 650.0, 900.0)
         amp = env_ar(n, 0.007, dur * 0.4, sr)
-        v = harmonic_voice(f0, amp, (F, B, (1.0, 0.6, 0.25)), tilt_db_oct=-9.0, fmax=9000.0, sub=0.08, sr=sr)
+        v = harmonic_voice(f0, amp, (F, B, (1.0, 0.8, 0.4)), tilt_db_oct=-6.0, fmax=9000.0, sub=0.15, sr=sr)
         nz = formant_noise(n, rng, F, (600.0, 900.0, 1200.0), (0.8, 0.8, 0.5), lo=600.0, hi=9000.0, sr=sr) * amp
-        ev.append((t, fade(_mix_vn(v, nz, 0.22), 0.002, 0.01, sr), float(rng.uniform(0.75, 1.0))))
+        ev.append((t, fade(_mix_vn(v, nz, 0.3), 0.002, 0.01, sr), float(rng.uniform(0.75, 1.0))))
         t += dur + rng.uniform(0.16, 0.36)
     return distance_fx(sequence(ev, sr=sr), _f(params, "dist", 0.15, 0, 1), str(params.get("space", "room")))
 
@@ -325,8 +325,9 @@ def cat_purr(params, sr=SR):
     idx = np.nonzero(np.diff(np.floor(ph)) > 0)[0]
     imp = np.zeros(n, dtype=np.float32)
     imp[idx] = env[idx] * (1.0 + 0.12 * rng.standard_normal(len(idx)))
-    kern = dsp.modal([110.0, 240.0, 470.0, 820.0], [0.016, 0.011, 0.007, 0.004], [1.0, 0.8, 0.5, 0.25], 0.07, sr)
-    kern[:n_of(0.012, sr)] += 0.25 * dsp.noise_burst(rng, 0.012, 0, 1200.0, 0.004, sr=sr)
+    # weighted toward 200-900 Hz so the purr still reads on small speakers
+    kern = dsp.modal([110.0, 240.0, 470.0, 820.0, 1300.0], [0.016, 0.011, 0.007, 0.004, 0.003], [0.6, 0.9, 0.8, 0.5, 0.25], 0.07, sr)
+    kern[:n_of(0.012, sr)] += 0.4 * dsp.noise_burst(rng, 0.012, 0, 1500.0, 0.004, sr=sr)
     y = dsp.conv_same(imp, kern)
     breath = dsp.band_noise(n, rng, 300.0, 2000.0) * env * 0.02 * float(np.max(np.abs(y)) + 1e-9)
     return fade(lp(y + breath, 2600.0, 2, sr), 0.05, 0.2, sr)
@@ -337,8 +338,8 @@ def cat_hiss(params, sr=SR):
     rng = _rng(params, "cat_hiss")
     dur = _f(params, "dur", 0.9, 0.3, 4.0)
     n = n_of(dur, sr)
-    mag = lambda f: dsp.mag_band(f, 1500.0, 11000.0, 2) * (0.25 + dsp.mag_peak(f, 5500.0, 1.2) +
-                                                         0.5 * dsp.mag_peak(f, 2900.0, 3.0) + 0.6 * dsp.mag_peak(f, 8500.0, 2.5))
+    mag = lambda f: dsp.mag_band(f, 1300.0, 9500.0, 2) * (0.25 + dsp.mag_peak(f, 4000.0, 1.0) +
+                                                        0.6 * dsp.mag_peak(f, 2600.0, 2.5) + 0.35 * dsp.mag_peak(f, 7000.0, 2.5))
     x = dsp.shaped_noise(n, rng, mag, sr)
     env = bpc(n, [(0, 0), (0.02, 1.0), (0.1, 0.62), (0.7, 0.42), (1.0, 0)])
     env = env * (1.0 + 0.15 * smooth_noise(n, rng, 25.0))
@@ -611,6 +612,7 @@ def munch(params, sr=SR):
     y = crisp + 0.25 * jaw
     for c in crush:  # the wet, fibrous part of each bite
         y += 0.3 * dsp.conv_same(c, dsp.noise_burst(rng, 0.12, 1000.0, 6500.0, 0.03, attack=0.002, sr=sr))
+    y = dsp.soft_clip(y / (float(np.max(np.abs(y))) + 1e-9) * 2.2, 1.0)  # tame the crack-to-body ratio
     return fade(lp(y, 9500.0, 2, sr), 0.005, 0.05, sr)
 
 
@@ -705,8 +707,8 @@ def paws(params, sr=SR):
         y = np.zeros(n, dtype=np.float32)
         thud_f = rng.uniform(105.0, 150.0) / k ** 0.5
         if surface in ("floor", "asphalt"):
-            place(y, dsp.modal([thud_f, thud_f * 2.3], [0.022, 0.012], [1.0, 0.4], 0.12, sr), 0, 0.5 * k)
-            place(y, dsp.noise_burst(rng, 0.03, 0, 450.0 if surface == "floor" else 320.0, 0.01, sr=sr), 0, 0.4 * k)
+            place(y, dsp.modal([thud_f, thud_f * 2.3], [0.022, 0.012], [1.0, 0.4], 0.12, sr), 0, 0.3 * k)
+            place(y, dsp.noise_burst(rng, 0.03, 0, 450.0 if surface == "floor" else 320.0, 0.01, sr=sr), 0, 0.3 * k)
             for _ in range(int(rng.integers(2, 4))):  # claws
                 dt = rng.uniform(0.0, 0.014)
                 if surface == "floor":
