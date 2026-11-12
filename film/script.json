@@ -1,0 +1,98 @@
+{
+  "meta": {
+    "title": "THE LAST PETS ON EARTH",
+    "pace_wpm": 150,
+    "note": "text = on-screen caption text and spoken text. tts (optional) = spoken override with the same number of whitespace-separated words. speed = multiplier on the base narration speed. hl = caption keywords shown in gold."
+  },
+  "lines": [
+    {"id": "1.1", "scene": 1, "speed": 1.02, "text": "What would happen to our pets... if every human on Earth suddenly disappeared?", "hl": ["pets", "disappeared"]},
+    {"id": "1.2", "scene": 1, "speed": 1.02, "text": "Right now, hundreds of millions of dogs, cats, and other animals share our homes.", "hl": ["hundreds of millions"]},
+    {"id": "1.3", "scene": 1, "speed": 1.02, "text": "We feed them. We protect them. We give them names, and a place on the sofa.", "hl": ["feed", "protect", "names"]},
+    {"id": "1.4a", "scene": 1, "speed": 1.0, "text": "Then, on one perfectly ordinary afternoon...", "hl": ["ordinary"]},
+    {"id": "1.4b", "scene": 1, "speed": 0.94, "text": "Everyone is gone.", "hl": ["gone"]},
+    {"id": "1.5", "scene": 1, "speed": 1.0, "text": "No warning. No goodbye. Only empty streets, abandoned cars, and silent buildings.", "hl": ["empty streets", "silent"]},
+    {"id": "1.6", "scene": 1, "speed": 1.0, "text": "A golden retriever waits by the front door, certain his family will be home any minute.", "hl": ["golden retriever"]},
+    {"id": "1.7", "scene": 1, "speed": 1.0, "text": "A cat searches every room of an apartment that has never been this quiet.", "hl": ["cat"]},
+    {"id": "1.8", "scene": 1, "speed": 1.0, "text": "And a parrot keeps repeating the words it learned from its owner... to a room where no one answers.", "hl": ["parrot", "no one answers"]},
+    {"id": "1.9", "scene": 1, "speed": 0.97, "text": "This is the story of the last pets on Earth.", "hl": ["last pets on Earth"]},
+
+    {"id": "2.1", "scene": 2, "text": "For the first few hours, almost nothing changes. Pets nap, and wait, the way they do every afternoon.", "hl": ["first few hours"]},
+    {"id": "2.2", "scene": 2, "text": "But the food bowls stay empty. And with no one left to run them, power stations begin to shut down.", "hl": ["empty", "power stations"]},
+    {"id": "2.3", "scene": 2, "text": "City by city, the lights go out. Automatic feeders blink... and fall silent.", "hl": ["lights go out", "silent"]},
+    {"id": "2.4", "scene": 2, "text": "Dogs scratch at doors that will never open. Their barking echoes through empty hallways.", "hl": ["never open"]},
+    {"id": "2.5", "scene": 2, "text": "Cats are quicker to adapt. They slip through open windows, and out into the night.", "hl": ["Cats", "open windows"]},
+    {"id": "2.6", "scene": 2, "text": "For the smallest pets, it is far harder. Hamsters, guinea pigs, and rabbits are trapped inside the very cages built to keep them safe.", "hl": ["Hamsters", "guinea pigs", "rabbits", "trapped"]},
+    {"id": "2.7", "scene": 2, "text": "Now, survival depends on luck... and on a single open door.", "hl": ["luck", "open door"]},
+
+    {"id": "3.1", "scene": 3, "text": "Seven days later, the pets that made it outside face a world they barely recognize.", "hl": ["Seven days"]},
+    {"id": "3.2", "scene": 3, "text": "The same streets. The same parks. But no hand to feed them, and no voice to call them home.", "hl": ["no hand", "no voice"]},
+    {"id": "3.3", "scene": 3, "text": "Cats fall back on an instinct that never left them. Within days, they are hunting mice.", "hl": ["instinct", "hunting"]},
+    {"id": "3.4", "scene": 3, "text": "Dogs do what their ancestors did: they find each other. Small, nervous packs begin raiding bins for scraps.", "hl": ["packs"]},
+    {"id": "3.5", "scene": 3, "text": "Rabbits hide in parks and gardens, never far from cover.", "hl": ["Rabbits"]},
+    {"id": "3.6", "scene": 3, "text": "And overhead, escaped parrots circle the rooftops, calling out for others of their kind.", "hl": ["parrots"]},
+    {"id": "3.7", "scene": 3, "text": "A week ago, they slept on sofas. Tonight, every shadow could be a threat.", "hl": ["threat"]},
+
+    {"id": "4.1", "scene": 4, "text": "One year without humans. Nobody mows the grass. Nobody sweeps the streets.", "hl": ["One year"]},
+    {"id": "4.2", "scene": 4, "text": "Weeds split the asphalt. Vines climb the walls. Young trees take root in empty parking lots.", "hl": ["Weeds", "Vines", "trees"]},
+    {"id": "4.3", "scene": 4, "text": "The dogs have changed, too. Breeds shaped for looks, with flat faces and tiny legs, are struggling. Sturdy, medium-sized dogs do best... and they survive by working together.", "hl": ["medium-sized", "together"]},
+    {"id": "4.4", "scene": 4, "text": "Cats need no one. Each has become a silent, solitary hunter.", "hl": ["solitary hunter"]},
+    {"id": "4.5", "scene": 4, "text": "Rabbits are multiplying fast. A single mother can raise dozens of young in one year.", "hl": ["multiplying", "dozens"]},
+    {"id": "4.6", "scene": 4, "text": "And the parrots have found each other, forming noisy colonies above the streets.", "hl": ["colonies"]},
+    {"id": "4.7", "scene": 4, "text": "It has happened before. Even today, flocks of escaped parrots live wild in cities like London and Los Angeles.", "hl": ["London", "Los Angeles"]},
+
+    {"id": "5.1", "scene": 5, "text": "Five years on, the city is turning green. Roofs leak. Windows shatter. Saplings sprout from gutters and balconies.", "hl": ["Five years", "green"]},
+    {"id": "5.2", "scene": 5, "text": "Food is no longer left behind by people. It has to be found... and defended.", "hl": ["found", "defended"]},
+    {"id": "5.3", "scene": 5, "text": "Dog packs now patrol territories of their own. At the borders, rivals meet with raised hackles and warning barks. Most standoffs end without a fight.", "hl": ["territories", "without a fight"]},
+    {"id": "5.4", "scene": 5, "text": "Inside abandoned buildings, cats stalk the stairwells, each guarding its own hunting ground.", "hl": ["hunting ground"]},
+    {"id": "5.5", "scene": 5, "text": "Rabbits dig sprawling warrens beneath the old lawns.", "hl": ["warrens"]},
+    {"id": "5.6", "scene": 5, "text": "And on the rooftops, parrots squabble over the best nesting spots, high above the danger below.", "hl": ["nesting"]},
+    {"id": "5.7", "scene": 5, "speed": 0.95, "text": "No one is waiting by the door anymore.", "hl": ["waiting"]},
+
+    {"id": "6.1", "scene": 6, "text": "Twenty years have passed. Almost every animal alive today was born in the wild. They have never heard a human voice.", "hl": ["Twenty years", "born in the wild"]},
+    {"id": "6.2", "scene": 6, "text": "Young dogs learn by watching the pack: how to track, how to chase, and when to run.", "hl": ["learn"]},
+    {"id": "6.3", "scene": 6, "text": "Nature is quietly choosing who survives. Among rabbits, bright white coats were easy for hawks to spot. Now, most are an earthy, wild brown.", "hl": ["choosing who survives", "brown"]},
+    {"id": "6.4", "scene": 6, "text": "Cats leap between crumbling floors as if the ruins were built for them.", "hl": ["ruins"]},
+    {"id": "6.5", "scene": 6, "text": "Parrots nest in traffic lights, billboards, and broken signs.", "hl": ["Parrots"]},
+    {"id": "6.6", "scene": 6, "speed": 0.97, "text": "Only the oldest parrots still remember us. Some can live for sixty years... and a few still repeat the words they once learned.", "hl": ["remember us", "sixty years"]},
+
+    {"id": "7.1", "scene": 7, "text": "Fifty years. For evolution, that is barely a heartbeat. No new species have appeared.", "hl": ["Fifty years", "No new species"]},
+    {"id": "7.2", "scene": 7, "text": "But generation after generation has lived and died, and the differences are beginning to show.", "hl": ["differences"]},
+    {"id": "7.3", "scene": 7, "text": "On the open land beyond the city, dogs have grown stronger, leaner, and more resilient, hunting in tight packs.", "hl": ["stronger", "resilient"]},
+    {"id": "7.4", "scene": 7, "text": "Deep in the ruins, others have become smaller, faster, and far more cautious.", "hl": ["smaller", "faster", "cautious"]},
+    {"id": "7.5", "scene": 7, "text": "The fancy breeds have blended away. Most dogs now share upright ears, a slim build, and a sandy coat.", "hl": ["upright ears", "sandy coat"]},
+    {"id": "7.6", "scene": 7, "text": "Cats have hardly changed at all. They were always stealthy hunters.", "hl": ["stealthy hunters"]},
+    {"id": "7.7", "scene": 7, "text": "And wherever winters are mild, parrot flocks have become a permanent part of the sky.", "hl": ["permanent"]},
+
+    {"id": "8.1", "scene": 8, "text": "One hundred years after the last human, the cities are almost unrecognizable.", "hl": ["One hundred years"]},
+    {"id": "8.2", "scene": 8, "text": "Wooden houses have rotted away. Bridges sag into rivers. Towers of glass and steel stand hollow, wrapped in green.", "hl": ["wrapped in green"]},
+    {"id": "8.3", "scene": 8, "text": "Wild dogs roam where traffic once roared. Cats hunt along the rooftops. Rabbits graze in the streets, while parrots call from the trees.", "hl": ["Wild dogs", "Cats", "Rabbits", "parrots"]},
+    {"id": "8.4", "scene": 8, "speed": 0.94, "text": "And in one abandoned apartment, something has survived.", "hl": ["survived"]},
+    {"id": "8.5", "scene": 8, "speed": 0.94, "text": "An old photograph. A little boy, hugging his golden retriever.", "hl": ["photograph", "golden retriever"]},
+    {"id": "8.6", "scene": 8, "speed": 0.94, "text": "It lies exactly where it fell, a century ago. The dog who walks past it now will never know what it means.", "hl": ["a century ago", "never know"]},
+    {"id": "8.7", "scene": 8, "speed": 0.94, "text": "But it is all that remains of a friendship that began more than fifteen thousand years ago.", "hl": ["friendship", "fifteen thousand years"]},
+
+    {"id": "9.1", "scene": 9, "speed": 0.97, "text": "Two hundred years. The world we built has become something else entirely.", "hl": ["Two hundred years"]},
+    {"id": "9.2", "scene": 9, "speed": 0.97, "text": "Where avenues once ran, there are forests of concrete, rusted metal, and towering trees.", "hl": ["forests"]},
+    {"id": "9.3", "scene": 9, "speed": 0.97, "text": "The animals we once kept are no longer visitors here. They belong.", "hl": ["They belong"]},
+    {"id": "9.4", "scene": 9, "speed": 0.97, "text": "Wild dogs hunt in packs, keeping the deer herds in check. Cats prowl the undergrowth. Rabbits feed the hawks and the foxes. Parrots scatter seeds across the canopy, planting tomorrow's forest.", "hl": ["Wild dogs", "Cats", "Rabbits", "Parrots"]},
+    {"id": "9.5", "scene": 9, "speed": 0.97, "text": "Each has found its place in a living, breathing ecosystem.", "hl": ["ecosystem"]},
+    {"id": "9.6", "scene": 9, "speed": 0.95, "text": "No collars. No cages. No names. The very idea of a pet... no longer exists.", "hl": ["pet", "no longer exists"]},
+
+    {"id": "10.1", "scene": 10, "speed": 0.92, "text": "Humans disappeared. Their cities collapsed. Their technology stopped working.", "hl": ["disappeared", "collapsed", "stopped working"]},
+    {"id": "10.2", "scene": 10, "speed": 0.92, "text": "But life continued.", "hl": ["life continued"]},
+    {"id": "10.3", "scene": 10, "speed": 0.92, "text": "Once, we called these animals our pets.", "hl": ["our pets"]},
+    {"id": "10.4", "scene": 10, "speed": 0.92, "text": "We fed them, protected them, and treated them as members of our families.", "hl": ["families"]},
+    {"id": "10.5", "scene": 10, "speed": 0.92, "text": "Now, they have become part of a world without us.", "hl": ["without us"]},
+    {"id": "10.6", "scene": 10, "speed": 0.96, "text": "And here is the final question: If you could save only ONE pet before humanity disappeared, which one would you choose?", "tts": "And here is the final question: If you could save only one pet before humanity disappeared, which one would you choose?", "hl": ["final question", "ONE pet"]},
+    {"id": "10.7", "scene": 10, "speed": 0.96, "text": "A dog, a cat, a parrot, or a rabbit?", "hl": ["dog", "cat", "parrot", "rabbit"]},
+    {"id": "10.8", "scene": 10, "speed": 0.96, "text": "Let us know in the comments.", "hl": ["comments"]},
+    {"id": "10.9", "scene": 10, "speed": 0.9, "text": "And remember: To us, they may have been just pets.", "hl": ["just pets"]},
+    {"id": "10.10", "scene": 10, "speed": 0.88, "text": "But to them, we were their entire world.", "hl": ["entire world"]}
+  ],
+  "parrot": [
+    {"id": "p_hello", "text": "Hello!"},
+    {"id": "p_morning", "text": "Good morning!"},
+    {"id": "p_goodboy", "text": "Good boy!"},
+    {"id": "p_hello_q", "text": "Hello?"}
+  ]
+}

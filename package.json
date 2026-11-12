@@ -1,0 +1,16 @@
+{
+  "name": "last-pets-on-earth",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Procedurally animated 10-minute documentary: The Last Pets on Earth",
+  "type": "module",
+  "scripts": {
+    "still": "node src/cli/still.js",
+    "sheet": "node src/cli/sheet.js",
+    "render": "node src/cli/render.js",
+    "timeline": "node src/cli/timeline.js"
+  },
+  "dependencies": {
+    "@napi-rs/canvas": "^0.1.68"
+  }
+}
