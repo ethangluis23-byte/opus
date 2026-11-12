@@ -8,7 +8,10 @@ const readJSON = (p, d = null) => (fs.existsSync(p) ? JSON.parse(fs.readFileSync
 function load() {
   const script = readJSON(path.join(ROOT, 'film/script.json'));
   const tts = readJSON(path.join(ROOT, 'build/audio/narration.json'));
+  // Authored line starts (absolute film seconds): film/starts.json plus one file per scene in film/starts/.
   const starts = readJSON(path.join(ROOT, 'film/starts.json'), {});
+  const dir = path.join(ROOT, 'film/starts');
+  if (fs.existsSync(dir)) for (const f of fs.readdirSync(dir).filter((x) => x.endsWith('.json')).sort()) Object.assign(starts, readJSON(path.join(dir, f), {}));
   const cursor = {};
   const lines = [];
   for (const L of script.lines) {
