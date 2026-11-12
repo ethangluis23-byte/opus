@@ -14,14 +14,15 @@ RATIO = 2 ** (SEMITONES / 12)  # plain resample shift: pitch and formants up, pl
 NET_SPEED = 1.1  # audible tempo after the shift
 KOKORO_SPEED = round(NET_SPEED / RATIO, 4)  # synthesized slower so the resample lands on NET_SPEED
 BAND_HZ = (700.0, 5500.0)
+FILTER_ORDER = 4  # Butterworth band-pass, applied forward and backward
 AM_HZ, AM_DEPTH = 80.0, 0.35
 DRIVE = 1.8  # tanh saturation
-SQUAWK_S, GAP_S = 0.045, 0.012
+SQUAWK_S, SQUAWK_ATTACK_S, SQUAWK_LEVEL, GAP_S = 0.045, 0.004, 0.8, 0.012
 LEAD_S, TAIL_S = 0.005, 0.020
 
 
 def _bandpass(x: np.ndarray) -> np.ndarray:
-    sos = butter(4, BAND_HZ, btype="bandpass", fs=SR_OUT, output="sos")
+    sos = butter(FILTER_ORDER, BAND_HZ, btype="bandpass", fs=SR_OUT, output="sos")
     return sosfiltfilt(sos, x)
 
 
@@ -35,7 +36,7 @@ def squawk(rng: np.random.Generator) -> np.ndarray:
     noise = rng.standard_normal(n)
     sig = 0.6 * tone / np.abs(tone).max() + 0.55 * noise / np.abs(noise).max()
     sig *= 1 + 0.6 * np.sin(2 * np.pi * 190 * t)
-    sig *= np.minimum(1.0, t / 0.004) * np.exp(-t / 0.022)
+    sig *= np.minimum(1.0, t / SQUAWK_ATTACK_S) * np.exp(-t / 0.022)
     return fade(_bandpass(sig), int(0.001 * SR_OUT), int(0.005 * SR_OUT))
 
 
@@ -57,7 +58,7 @@ def parrotize(x24: np.ndarray, name: str, with_squawk: bool = True) -> np.ndarra
     parts = [np.zeros(int(LEAD_S * SR_OUT))]
     if with_squawk:
         sq = squawk(rng)
-        parts += [0.8 * np.abs(y).max() * sq / np.abs(sq).max(), np.zeros(int(GAP_S * SR_OUT))]
+        parts += [SQUAWK_LEVEL * np.abs(y).max() * sq / np.abs(sq).max(), np.zeros(int(GAP_S * SR_OUT))]
     parts += [y, np.zeros(int(TAIL_S * SR_OUT))]
     out = np.concatenate(parts)
     return out * 10 ** (PEAK_DBFS / 20) / np.abs(out).max()
