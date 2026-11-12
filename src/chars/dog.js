@@ -90,7 +90,8 @@ function poseMix(pose, S, FL) {
 // World distance covered per gait cycle (advance phase by distance / dogStride to keep feet planted).
 export function dogStride(gait = 'walk', v = 'golden', s = 1, puppy = 0) {
   const V = typeof v === 'string' ? DOGS[v] : { ...DOGS.golden, ...v };
-  return GAITS[gait].stride * lerp(V.legK ?? 1, 1, 0.3) * lerp(1, 0.7, puppy) * (V.size ?? 1) * s;
+  // a planted foot travels `stride` during only the `duty` part of the cycle, so the body covers stride / duty
+  return (GAITS[gait].stride / GAITS[gait].duty) * lerp(V.legK ?? 1, 1, 0.3) * lerp(1, 0.7, puppy) * (V.size ?? 1) * s;
 }
 
 const EAR_NEAR = [
